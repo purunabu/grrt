@@ -1,0 +1,20 @@
+This is a general relativistic ray tracer in Java 21, built with Maven.
+Target: simulate black hole imagery (Schwarzschild, Kerr, Johannsen-Psaltis)
+for comparison against EHT M87* data. RNAAS paper is the end goal.
+
+Architecture:
+- metric/     : Metric interface + implementations. Provides g_μν, g^μν, Christoffel symbols.
+- integrator/ : ODE solvers (RK4 first, then Dormand-Prince) for null geodesics.
+- camera/     : Observer tetrad, pixel to initial 4-momentum.
+- renderer/   : Pixel loop, parallelized, writes FITS.
+- io/         : FITS output via nom-tam-fits.
+
+Coding rules:
+- Java 21, idiomatic. Use records where appropriate.
+- double[] for state vectors (8-dim: x^mu, k^mu). No Vector4 class.
+- No dependency injection frameworks. No Spring. Plain constructors.
+- Christoffels computed in closed form per metric, NOT by numerical differentiation.
+- Parallelize pixel loop with parallel streams.
+- All public APIs have Javadoc with physical meaning of parameters.
+- Use JUnit 5 for tests.
+- Units: geometrized (G = c = M = 1) unless stated otherwise.

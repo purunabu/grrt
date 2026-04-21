@@ -1,0 +1,10 @@
+target/
+*.class
+*.jar
+.idea/
+.vscode/
+*.iml
+.DS_Store
+output/*.fits
+output/*.png
+!output/.gitkeep
