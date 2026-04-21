@@ -143,8 +143,8 @@ Silent guessing in GR will introduce bugs that take hours to find.
 - [x] `MinkowskiMetric` for integrator testing
 - [x] `Integrator` interface + fixed-step `RK4`
 - [x] `Camera` (static observer tetrad in Schwarzschild, pixel → null 4-momentum)
-- [ ] `Renderer` (pixel loop, FITS output, parallel)
-- [ ] Validation: shadow radius converges to 3√3 M
+- [x] `Renderer` (parallel pixel loop, two-zone RK4, binary shader, FITS output)
+- [x] Validation: shadow radius converges to 3√3 M (256² edge midpoint within 0.5 px of prediction)
 - [ ] `KerrMetric` (Phase 2)
 - [ ] Adaptive `DormandPrince45` integrator (Phase 2)
 - [ ] Disk emission model (Phase 2)
