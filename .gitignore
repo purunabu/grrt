@@ -8,3 +8,4 @@ target/
 output/*.fits
 output/*.png
 !output/.gitkeep
+!output/first_shadow.png
