@@ -1,0 +1,90 @@
+package com.pranav.grrt.metric;
+
+/**
+ * Spacetime metric in spherical-type coordinates x = (t, r, θ, φ).
+ *
+ * <p>Conventions:
+ * <ul>
+ *   <li>Signature (-, +, +, +)</li>
+ *   <li>Geometrized units: G = c = 1. Mass has dimensions of length.</li>
+ *   <li>Coordinate index ordering: 0 = t, 1 = r, 2 = θ, 3 = φ</li>
+ *   <li>Geodesic state vector layout: [t, r, θ, φ, k^t, k^r, k^θ, k^φ]</li>
+ * </ul>
+ */
+public interface Metric {
+
+    /** @return gravitational mass M in geometrized units */
+    double mass();
+
+    /** @return outer event horizon radius in geometrized units */
+    double horizonRadius();
+
+    /**
+     * Metric tensor g_{μν} at position x.
+     *
+     * @param x position 4-vector (t, r, θ, φ)
+     * @return new 4x4 array with [μ][ν] = g_{μν}
+     */
+    double[][] g(double[] x);
+
+    /**
+     * Inverse metric tensor g^{μν} at position x.
+     *
+     * @param x position 4-vector (t, r, θ, φ)
+     * @return new 4x4 array with [μ][ν] = g^{μν}
+     */
+    double[][] gInv(double[] x);
+
+    /**
+     * Christoffel symbols of the second kind at position x.
+     * Symmetric in the lower indices: Γ^α_{μν} = Γ^α_{νμ}.
+     *
+     * @param x position 4-vector (t, r, θ, φ)
+     * @return new 4x4x4 array with [α][μ][ν] = Γ^α_{μν}
+     */
+    double[][][] christoffel(double[] x);
+
+    /**
+     * Geodesic acceleration: d²x^μ/dλ² = -Γ^μ_{αβ} k^α k^β.
+     * Implementations should override for performance (avoid allocating the
+     * full Christoffel tensor in the integrator hot path).
+     *
+     * @param x   position 4-vector
+     * @param k   momentum 4-vector (dx/dλ)
+     * @param out output acceleration 4-vector; length 4; overwritten
+     */
+    default void geodesicAcceleration(double[] x, double[] k, double[] out) {
+        double[][][] G = christoffel(x);
+        for (int mu = 0; mu < 4; mu++) {
+            double a = 0.0;
+            for (int alpha = 0; alpha < 4; alpha++) {
+                double kAlpha = k[alpha];
+                double[] row = G[mu][alpha];
+                for (int beta = 0; beta < 4; beta++) {
+                    a -= row[beta] * kAlpha * k[beta];
+                }
+            }
+            out[mu] = a;
+        }
+    }
+
+    /**
+     * Norm g_{μν} k^μ k^ν. For a null geodesic this is zero; the integrator
+     * uses this to detect numerical drift off the light cone.
+     *
+     * @param x position 4-vector
+     * @param k momentum 4-vector
+     * @return g_{μν} k^μ k^ν
+     */
+    default double nullNorm(double[] x, double[] k) {
+        double[][] gmn = g(x);
+        double sum = 0.0;
+        for (int mu = 0; mu < 4; mu++) {
+            double[] row = gmn[mu];
+            for (int nu = 0; nu < 4; nu++) {
+                sum += row[nu] * k[mu] * k[nu];
+            }
+        }
+        return sum;
+    }
+}
