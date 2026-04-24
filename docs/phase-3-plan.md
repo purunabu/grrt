@@ -423,16 +423,33 @@ would require sub-pixel-resolved 2048² + adaptive sampling and is out
 of scope for this RNAAS. The distinction is recorded in both the
 `RingExtractor` Javadoc and the paper's Methods section.
 
-### 6.5 Sweep grid (correction 2)
+### 6.5 Sweep grid (revised for cusp-aware methodology)
+
+Post-transition-discovery (see `docs/jp-parameter-space-notes.md`), the
+sweep at a = 0.9 spans the smooth-deformation regime, the cusp
+neighborhood around `ε₃_crit ≈ 0.12`, and the transition regime in a
+single curve with a vertical line annotation at ε₃_crit on the final
+figure:
 
 ```
-ε₃ ∈ {−2, −1, −0.5, −0.2, −0.1, −0.05, 0, +0.05, +0.1, +0.2, +0.5, +1, +2}
-     (13 points, denser near zero where the EHT bound is extracted)
+ε₃ ∈ {−2.5, −1.5, −1.0, −0.5, −0.2, −0.1, −0.05, 0,
+      +0.05, +0.08, +0.10, +0.11,        ← approaching cusp
+      +0.12,                               ← cusp at ≈ 0.1212
+      +0.13, +0.20, +1.00}                 ← transition regime
 
-i  ∈ {17°, 60°}                (both at 512²; correction to D-C2)
+i  ∈ {17°, 60°}                (both at 512², single curve per inclination)
 ```
 
-Total: 26 frames at 512².
+15 points × 2 inclinations = 30 frames at 512². The negative side
+stops at `−2.5` with safety margin to `ε₃_pathology ≈ −2.97` (no
+transition on the negative side, per
+`docs/jp-parameter-space-notes.md` §7). The cusp neighborhood
+`[+0.05, +0.13]` gets 6 points so the knee in `δ_r/⟨r⟩` resolves;
+transition regime `{+0.20, +1.00}` plus the cusp-side `+0.13`
+characterize the post-merger structure.
+
+Supersedes the earlier 13-point grid (correction 2), which predated
+the cusp discovery.
 
 ### 6.6 Sweep driver (resumability requirement)
 
@@ -458,7 +475,7 @@ render_wallclock_s, git_sha, timestamp_iso
 | 2 | RingExtractor on synthetic ellipse `(a=5.5, b=5.2)` vs analytic RMS | 1e-4 relative |
 | 3 | **Kerr/JP consistency (correction 4)**: at `(a=0.9, ε₃=0, i=17°, 512²)`, JP sweep row vs direct Kerr render (same a, i, resolution) | `\|Δ(δ_r/⟨r⟩)\| < 0.1 pp` |
 | 4 | External shadow-diameter cross-check vs GRay/Kerr published values | within 2% (secondary sanity, non-blocking) |
-| 5 | Monotonicity: `δ_r/⟨r⟩` monotonic in `\|ε₃\|` at i=17° | manual inspection; non-monotonic halts sweep |
+| 5 | Smooth-regime monotonicity + expected cusp: `δ_r/⟨r⟩` monotonic in ε₃ on `[−2.5, +0.10]` at i=17°; a knee or cusp at `ε₃ ≈ +0.12` is EXPECTED from the photon-sphere bifurcation (see `docs/jp-parameter-space-notes.md`) and does NOT halt the sweep | manual inspection; non-monotonic behavior inside the smooth regime halts the sweep |
 | 6 | Bin-count convergence: 90/180/360 bins on same frame | 5% relative agreement |
 | 7 | Resumability: interrupt after 5 frames, restart, complete — final CSV identical to uninterrupted run (modulo `timestamp_iso`) | exact on numeric columns |
 
@@ -467,10 +484,10 @@ secondary sanity check only.
 
 ### 6.8 Wall-clock (M3, 10 threads)
 
-- 26 frames × ~24 s/frame at 512² ≈ **~10.5 min** wall-clock for the
-  full sweep.
+- 30 frames × ~24 s/frame at 512² ≈ **~12 min** wall-clock for the
+  full sweep (15-point grid × 2 inclinations, see §6.5).
 - Ring extraction: < 1 s/frame. Negligible.
-- I/O: 26 × ~2 MB FITS + ~5 KB CSV, under gitignored `output/`.
+- I/O: 30 × ~2 MB FITS + ~5 KB CSV, under gitignored `output/`.
 
 Resumable, so cost of interruption is bounded.
 
@@ -514,13 +531,24 @@ src/test/java/com/pranav/grrt/analysis/ConsistencyBoundTest.java
   `Makefile`, and figure-generation scripts tracked (D-D2).
 - `CLAUDE.md` — tick EHT comparison and RNAAS paper.
 
-### 7.3 EHT benchmark (D-D1)
+### 7.3 EHT benchmark (D-D1, cusp-aware)
 
 Primary benchmark: **Fourier m=1 fractional amplitude** from EHT 2019
 Paper VI Table 7. Rationale: this is the quantity Psaltis et al. 2020
 uses to derive their bounds, and the RNAAS paper's methodological
 comparator is Psaltis 2020. Using the same convention eliminates a
 conversion step in the comparison section.
+
+**The bound is extracted from the smooth-deformation regime only.**
+At `a = 0.9`, `ε₃_pathology ≈ −2.97` and `ε₃_crit ≈ +0.12` (see
+`docs/jp-parameter-space-notes.md`); the physical, smooth-curve
+interval is `ε₃ ∈ (−2.97, +0.12)`. `ConsistencyBound` restricts the
+interpolation to the monotone sub-interval of the sweep at i = 17°
+and inverts `δ_r/⟨r⟩` → `ε₃` via Fourier m=1. Sweep points at
+`ε₃ ≥ +0.12` (transition regime) are NOT inputs to the bound
+inversion — they populate the figure as a separate curve segment
+past the cusp to illustrate the shadow-structure change, which the
+paper highlights as a distinct, future-observable prediction.
 
 Conversion requirement: our sweep primary metric is RMS
 `δ_r/⟨r⟩`. For the bound inversion we convert RMS to Fourier m=1

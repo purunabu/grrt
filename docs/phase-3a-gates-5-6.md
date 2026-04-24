@@ -8,6 +8,16 @@ Parent commit: `a9555ea` (Phase 3A gates 1–4). Gates 5 and 6 land as
 one follow-up commit, after which sub-phase 3A is tagged
 `phase-3a-complete`.
 
+**Note on pair-list revision.** The seven gate-6 reference pairs in
+§3.3 were revised after the gate-6 dry run at the originally-planned
+`(0.9, +0.5)` and `(0.9, +1.0)` configurations produced sub-horizon
+roots instead of smooth Kerr-continuation orbits — the Kerr-continuation
+prograde photon orbit merges with the horizon at `ε₃_crit ≈ 0.12` for
+`a = 0.9`. See `docs/jp-parameter-space-notes.md` for the physics and
+`CLAUDE.md` for the RNAAS reframe. The revised pairs all sit inside
+the smooth-deformation regime, so gate 6 validates the Kerr-continuation
+orbit across cleanly-defined physics.
+
 ---
 
 ## 1. Scope
@@ -161,18 +171,18 @@ Equatorial (θ = π/2, cos²θ = 0) with ω ≡ k^φ / k^t:
 `F(r) ≡ ∂_r g_tt + 2 ∂_r g_tφ ω_±(r) + ∂_r g_φφ ω_±(r)² = 0` for the
 two branches of ω.
 
-### 3.3 Seven (a, ε₃) pairs
+### 3.3 Seven (a, ε₃) pairs (revised, cusp-aware)
 
 ```
   a     ε₃      notes
 -----------------------------------------------------------------
-  0.0   0.0    Schwarzschild,     r_photon = 3 M (exact)
-  0.9   0.0    Kerr a=0.9,        r_pro = 1.5578, r_retro = 3.9103
-  0.9  +0.5    JP positive small  (primary sweep point)
-  0.9  −0.5    JP negative small  (primary sweep point)
-  0.9  +1.0    JP positive large  (boundary of sweep density)
-  0.9  −1.0    JP negative large  (boundary of sweep density)
-  0.5  +0.5    intermediate spin  (coverage for intermediate-a code paths)
+  0.0   0.0    Schwarzschild anchor;     r_photon = 3 M (exact)
+  0.9   0.0    Kerr anchor;              r_pro = 1.5578, r_retro = 3.9103
+  0.9  +0.05   JP positive small;        well below cusp (ε₃_crit ≈ 0.12)
+  0.9  +0.10   JP positive near-cusp;    still smooth regime
+  0.9  −0.5    JP moderate negative;     smooth
+  0.9  −1.0    JP large negative;        well clear of pathology bound (−2.97)
+  0.5  +0.5    intermediate-a anchor;    coverage for intermediate-a code paths
 ```
 
 The pair `(0.0, 0.0)` anchors to the Schwarzschild exact value 3 M,
@@ -180,10 +190,17 @@ providing an independent sanity check before the JP-specific rows.
 The `(0.9, 0)` row cross-checks against Bardeen 1972 closed form
 already printed by `BardeenShadowTest` (`r_ph_pro = 1.5578546274`,
 `r_ph_retro = 3.9102679391`) to 1e-10. The four JP-ε₃ rows at
-`a = 0.9` validate the deformation at the primary sweep spin. The
+`a = 0.9` all sit inside the smooth-deformation regime and validate
+the deformation on both signs of ε₃; the two positive rows `+0.05`
+and `+0.10` bracket the cusp from below without crossing it, so the
+Kerr-continuation prograde orbit is well-defined at each pair. The
 `(0.5, +0.5)` row closes a coverage gap: every other nonzero-ε₃ row
 is at `a = 0.9`, so a bug specific to intermediate-a code paths
 would go undetected without this row.
+
+The earlier pair list (which had `(0.9, +0.5)` and `(0.9, +1.0)`)
+was revised after the transition discovery documented in
+`docs/jp-parameter-space-notes.md`.
 
 ### 3.4 New code
 

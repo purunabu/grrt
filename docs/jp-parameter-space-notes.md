@@ -31,9 +31,12 @@ gate 6 and the sweep-range revision for Phase 3C.
   prograde-side shadow bounded by the horizon rather than by a
   photon sphere. This is scientifically interesting and measurable
   (`δ_r/⟨r⟩` picks up the bifurcation).
-- Phase 3C sweep range at `a = 0.9` should shrink from `[−2, +2]` to
-  `[−1, +0.1]` for the smooth-continuation bound extraction, with a
-  separate note in the paper about the photon-sphere merger.
+- Phase 3C sweep at `a = 0.9` is a single 15-point curve spanning
+  `[−2.5, +1.0]`, with a vertical line annotation at
+  `ε₃_crit ≈ 0.12`. The cusp is the scientific headline (RNAAS
+  reframe, see `CLAUDE.md` Project section): the bound on ε₃ is
+  extracted from the smooth part of the curve, and the cusp is
+  reported as a separate future-observable prediction.
 
 ---
 
@@ -275,69 +278,150 @@ it is expected to FEATURE in the swept `δ_r(ε₃)` curve.
 
 ## 5. Implications for Phase 3
 
-### 5.1 Gate 6 pair revision (immediate)
+### 5.1 Gate 6 pair revision (approved; applied to sub-plan in Commit B)
 
-Replace two rows in the gate-6 reference table:
+Two rows replaced in the gate-6 reference table:
 
 | Before | After | Rationale |
 |---|---|---|
 | `(0.9, +0.5)` | `(0.9, +0.05)` | Well below `ε₃_crit ≈ 0.12`; tests smooth-deformation regime |
-| `(0.9, +1.0)` | `(0.9, +0.10)` | At the edge of the smooth regime; exercises near-bifurcation behavior |
+| `(0.9, +1.0)` | `(0.9, +0.10)` | Near-cusp, still smooth; exercises near-bifurcation behavior |
 
 The other five rows are unchanged: `(0.0, 0.0)`, `(0.9, 0.0)`,
 `(0.9, −0.5)`, `(0.9, −1.0)`, `(0.5, +0.5)`. Total 7 rows,
 14 scalar comparisons. All pairs have well-defined Kerr-continuation
 prograde and retrograde photon orbits.
 
-`scripts/jp_photon_orbit_reference.py` should be updated to use the
-revised pair list. (`docs/phase-3a-gates-5-6.md` §3.3 needs the
-same update.)
+The revised pair list is already reflected in
+`docs/phase-3a-gates-5-6.md` §3.3 (Commit B).
+`scripts/jp_photon_orbit_reference.py` still needs its `pairs`
+literal updated; that edit is deferred to the gate-6-resumes
+follow-up commit.
 
-### 5.2 Phase 3C sweep range revision
+### 5.2 Phase 3C sweep range (approved)
 
-Current plan (sub-plan §6.5): `ε₃ ∈ {−2, −1, −0.5, −0.2, −0.1, −0.05, 0, +0.05, +0.1, +0.2, +0.5, +1, +2}`, 13 points.
+Single-curve sweep at `a = 0.9` for both inclinations (17° primary,
+60° reference), spanning the smooth-deformation regime, the cusp
+neighborhood, and the transition regime, with a vertical line
+annotation at `ε₃_crit ≈ 0.1212` on the final figure (Q1 lock-in:
+the cusp is the scientific feature, not an aside; segregating it
+across two figures would hide it):
 
-Proposed revised grid at `a = 0.9, i = 17°` (the bound-extraction
-curve):
-`ε₃ ∈ {−1, −0.5, −0.2, −0.1, −0.05, 0, +0.05, +0.1}`, 8 points,
-all inside the smooth deformation regime.
+```
+ε₃ ∈ {−2.5, −1.5, −1.0, −0.5, −0.2, −0.1, −0.05, 0,
+      +0.05, +0.08, +0.10, +0.11,
+      +0.12,
+      +0.13, +0.20, +1.00}
+```
 
-Proposed separate "transition regime" figure (supplementary or
-inline): `ε₃ ∈ {+0.11, +0.12, +0.13, +0.15, +0.2, +0.5, +1.0}`,
-7 points, crossing `ε₃_crit`. This figure documents the photon-
-sphere merger signature in `δ_r/⟨r⟩` and is a methodological
-contribution in its own right.
+15 points. Negative side stops at `−2.5` with safety margin to
+`ε₃_pathology ≈ −2.97` (no transition on the negative side; see
+§7.1). Cusp neighborhood `[+0.05, +0.13]` gets 6 points to resolve
+the knee in `δ_r/⟨r⟩`; transition regime `{+0.20, +1.00}` plus the
+cusp-side `+0.13` characterize the post-merger structure.
 
-The negative side `ε₃ ∈ [−2, −1]` is unchanged from §3.1 regular,
-so no revision needed there — but the 13-point grid can drop its
-outermost `ε₃ = −2` pair if the curve is already smooth by `−1`.
-Deferred decision for Phase 3C kickoff.
+Two inclinations × 15 points = 30 frames at 512². Wall-clock ~12 min
+on M3, 10 threads. Supersedes the earlier two-figure proposal that
+split smooth vs. transition.
 
-### 5.3 Paper methodology note (Phase 3D)
+### 5.3 Paper methodology (Phase 3D, cusp-as-headline)
 
-The RNAAS must state:
+The RNAAS paper reframes around the cusp diagnostic (see `CLAUDE.md`
+Project section, reframed in Commit A). Methodological points:
 
-- The bound on ε₃ derived from EHT circularity is extracted from
-  the smooth-deformation regime at `ε₃ ∈ [−1, +0.1]`, a=0.9, i=17°.
-- The photon-sphere merger at `ε₃_crit ≈ 0.12` is a separate
-  qualitative feature, mentioned but not used for bound extraction.
-- The 60° inclination reference curve covers the same smooth range.
+- **Headline framing.** "Photon-ring asymmetry as a diagnostic of
+  the JP prograde photon-sphere bifurcation at M87*-consistent
+  spin."
+- **Bound extraction.** The two-sided bound on ε₃ is extracted from
+  the smooth-deformation regime
+  `ε₃ ∈ (ε₃_pathology, ε₃_crit) ≈ (−2.97, +0.12)` at a = 0.9,
+  i = 17°, by interpolating `δ_r/⟨r⟩` against EHT Paper VI Table 7
+  circularity (Fourier m=1) through the monotone smooth segment of
+  the sweep.
+- **Cusp as prediction.** The photon-sphere merger at `ε₃_crit` is
+  presented as a separate prediction of the JP metric — a
+  qualitative shadow-structure change (prograde side bounded by
+  the event horizon, not the photon sphere) testable by future
+  higher-precision observations. The final figure shows a single
+  curve with a vertical line at `ε₃_crit` so the cusp is visible
+  alongside the bound-extraction segment.
+- **60° reference curve.** Covers the same ε₃ range for
+  methodological comparison; not the source of the bound.
 
 ---
 
-## 6. Open questions for future sessions
+## 6. Open questions (status)
 
-- Verify the derived bounds against Johannsen 2013 Table / Figure
-  references when the paper is accessible. Update §3.3 if tighter
-  bounds appear in the literature.
-- Compute `ε₃_crit` on the negative side as well. The transition
-  would correspond to the prograde orbit moving OUTWARD and
-  perhaps merging with the ISCO or some outer boundary. Current
-  script only sweeps `ε₃ ≥ 0`; a one-line edit extends this.
-- Quantify the `δ_r/⟨r⟩` discontinuity at the transition with a
-  pilot render at `a=0.9, ε₃ = {+0.11, +0.13}` — decides whether
-  Phase 3C should split the sweep into smooth/transition sub-
-  figures.
+- **[OPEN]** Verify the derived bounds against Johannsen 2013 Table
+  or Figure references when the paper is accessible. Update §3.3 if
+  tighter bounds appear in the literature.
+- **[DONE]** Compute `ε₃_crit` on the negative side. See §7.1:
+  no transition in `[−3, 0]`. Prograde orbit moves smoothly outward
+  from 1.56 M at ε₃ = 0 to 2.45 M at ε₃ = −3. Retrograde drifts
+  slightly outward by ~2%. No bifurcation.
+- **[ROLLED-IN]** Quantify the `δ_r/⟨r⟩` discontinuity at the
+  transition with a pilot render at `a=0.9, ε₃ = {+0.11, +0.13}`.
+  Now a by-product of the 15-point single-curve sweep (§5.2); the
+  cusp resolution comes from the full 3C run rather than a separate
+  pilot.
+
+---
+
+## 7. Addendum — negative-side and bound-refinement results (2026-04-24)
+
+Data from a short scratch that reused the setup in
+`scripts/jp_transition_sweep.py`. Not committed as a separate
+script; the negative sweep and tight-bound logic should be folded
+into `jp_transition_sweep.py` in a follow-up "extend transition
+sweep to negative-ε₃ and bound" commit if these results need to be
+regenerated in-place later.
+
+### 7.1 Negative-ε₃ sweep at a = 0.9
+
+Sweep `ε₃ ∈ [−3.00, 0.00]` in 0.02 steps. Excerpt:
+
+```
+  ε₃      r_plus_JP_eq   r_photon_pro   r_photon_retro
+  ------  -------------  -------------  --------------
+  −3.00    1.7856         2.4525         4.0012
+  −2.00    1.7151         2.2552         3.9697
+  −1.00    1.6177         1.9995         3.9393
+   0.00    1.4359         1.5579         3.9103
+```
+
+**No transitions (finite ↔ NaN) detected in the full sweep.** Both
+prograde and retrograde orbits are smooth and continuous throughout.
+Prograde moves monotonically outward from 1.56 M (ε₃ = 0) to
+2.45 M (ε₃ = −3), always well outside the JP equatorial horizon
+`r_plus_JP_eq` (which itself drifts from 1.44 M to 1.79 M).
+Retrograde drifts slightly outward by ~2%. The negative-side sweep
+is therefore safe to extend to `ε₃_pathology ≈ −2.97` without
+encountering any orbital bifurcation. Phase 3C stops at `−2.5`
+(§5.2) with 0.47 M of safety margin.
+
+### 7.2 Tight-bound grid scan at a = 0.9
+
+Pathology test: `1 + h(r, θ) > 0` across
+`r ∈ [r_plus_Kerr · 1.001, 5 M]` and `θ ∈ [0, π]`. Grid scan at
+`ε₃ ∈ [−3.00, −2.80]` step 0.01 locates the minimum at
+`(r, θ) = (1.4373, π/2)` — equator, just above the Kerr horizon —
+for every ε₃ in that range. This confirms the §3.1 analytic claim
+that the bound is attained at `(r₊_K, π/2)`.
+
+Bisection on `min(1 + h)(ε₃) = 0`:
+
+```
+ε₃_pathology(a = 0.9) = −2.9695
+```
+
+The analytic single-point value `−r₊_K³ = −2.9606` agrees to 0.3%
+relative; the small slack exists because the grid starts at
+`r = r₊_K · 1.001` (r₊_K itself has Δ = 0 and cannot be sampled),
+so the grid minimum sits at slightly larger r where |h| is
+marginally smaller. **The findings-doc §3.3 lower bound `ε₃ > −2.97`
+is tight to 0.3% and stands.** No revision needed to the sweep
+range on the negative side beyond the `−2.5` safety margin approved
+in §5.2.
 
 ---
 
