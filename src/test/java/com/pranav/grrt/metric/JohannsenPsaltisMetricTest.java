@@ -684,4 +684,90 @@ class JohannsenPsaltisMetricTest {
         assertTrue(maxDrift < 1e-8,
                 "null-norm drift " + maxDrift + " exceeds 1e-8 tolerance");
     }
+
+    // ------------------------------------------------------------------
+    // Phase 3B.3: position-dependent isInsideHorizon override
+    //
+    // The JP override tests Δ + a² h sin²θ ≤ tol (the position-dependent
+    // event-horizon locus). It diverges from the default r-only test at
+    // ε₃ ≠ 0 on the equator. These tests pin the override at the two
+    // sign regimes:
+    //
+    //   ε₃ > 0: JP equatorial horizon sits INSIDE polar-axis Kerr r₊.
+    //           Default test would erroneously classify equatorial r in
+    //           (r_JP_eq, r_+) as captured; override correctly says
+    //           "outside the JP horizon".
+    //
+    //   ε₃ < 0: JP equatorial horizon sits OUTSIDE polar-axis Kerr r₊.
+    //           Default test would erroneously classify equatorial r in
+    //           (r_+, r_JP_eq) as escaped; override correctly says
+    //           "inside the JP horizon".
+    //
+    // Hand-derived test points: F(r) = r² − 2Mr + a² + a²ε₃/r³ at θ=π/2
+    // in M = 1 units.
+    // ------------------------------------------------------------------
+
+    @Test
+    void isInsideHorizonOverridesDefaultPositiveEps3Equator() {
+        // ε₃ = +0.20, a = 0.9: outermost root of F(r) at r ≈ 1.355,
+        // INSIDE polar-axis Kerr r₊ = 1.4359.
+        JohannsenPsaltisMetric jp =
+                new JohannsenPsaltisMetric(1.0, 0.9, +0.20);
+        KerrMetric kerr = new KerrMetric(1.0, 0.9);
+
+        double rPlus = jp.horizonRadius();
+        assertEquals(1.4358898943540672, rPlus, 1e-12,
+                "polar-axis horizon: M + √(M² − a²) for a = 0.9");
+
+        // (r=1.40, θ=π/2): F(1.40) = +0.029 > 0 → outside JP equatorial
+        // horizon. Override returns false; default would return true.
+        double[] xEqMid = {0.0, 1.40, Math.PI / 2.0, 0.0};
+        assertFalse(jp.isInsideHorizon(xEqMid, 0.0),
+                "ε₃=+0.20 equator at r=1.40 is outside the JP equatorial"
+                        + " horizon (F > 0); override must diverge from default");
+        // Sanity: Kerr default at the same point returns true.
+        assertTrue(kerr.isInsideHorizon(xEqMid, 0.0),
+                "Kerr default at r=1.40 < r₊: inside (sanity)");
+
+        // (r=1.30, θ=π/2): F(1.30) ≈ −0.026 < 0 → inside JP equatorial
+        // horizon. Both override and default return true.
+        double[] xEqDeep = {0.0, 1.30, Math.PI / 2.0, 0.0};
+        assertTrue(jp.isInsideHorizon(xEqDeep, 0.0),
+                "ε₃=+0.20 equator at r=1.30 should be inside JP horizon");
+
+        // Polar axis (sin θ = 0) reduces to Δ ≤ tol.
+        double[] xAxisOut = {0.0, 1.50, 0.0, 0.0};
+        assertFalse(jp.isInsideHorizon(xAxisOut, 0.0),
+                "polar axis at r=1.50 > r₊: outside horizon");
+        double[] xAxisOnHorizon = {0.0, rPlus, 0.0, 0.0};
+        assertTrue(jp.isInsideHorizon(xAxisOnHorizon, 1e-10),
+                "polar axis at r = r₊: at horizon (with tol)");
+    }
+
+    @Test
+    void isInsideHorizonOverridesDefaultNegativeEps3Equator() {
+        // ε₃ = −1.0, a = 0.9: outermost root of F(r) at r ≈ 1.62,
+        // OUTSIDE polar-axis Kerr r₊ = 1.4359.
+        JohannsenPsaltisMetric jp =
+                new JohannsenPsaltisMetric(1.0, 0.9, -1.0);
+        KerrMetric kerr = new KerrMetric(1.0, 0.9);
+
+        double rPlus = jp.horizonRadius();
+
+        // (r=1.50, θ=π/2): F(1.50) ≈ −0.180 < 0 → inside JP equatorial
+        // horizon. Override returns true; default returns false.
+        double[] xEqInsideJp = {0.0, 1.50, Math.PI / 2.0, 0.0};
+        assertTrue(xEqInsideJp[1] > rPlus,
+                "test setup: r=1.50 must be outside polar-axis r₊");
+        assertTrue(jp.isInsideHorizon(xEqInsideJp, 0.0),
+                "ε₃=−1.0 equator at r=1.50 is inside the JP equatorial"
+                        + " horizon (F < 0); override must diverge from default");
+        assertFalse(kerr.isInsideHorizon(xEqInsideJp, 0.0),
+                "Kerr default at r=1.50 > r₊: outside (sanity)");
+
+        // (r=1.70, θ=π/2): F(1.70) ≈ +0.135 > 0 → outside JP horizon.
+        double[] xEqOutAll = {0.0, 1.70, Math.PI / 2.0, 0.0};
+        assertFalse(jp.isInsideHorizon(xEqOutAll, 0.0),
+                "ε₃=−1.0 equator at r=1.70 should be outside JP horizon");
+    }
 }

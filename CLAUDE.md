@@ -107,6 +107,15 @@ Silent guessing in GR will introduce bugs that take hours to find.
   the derivation in Javadoc. Never numerical differentiation.
 - `Metric.geodesicAcceleration` has a correctness default but every concrete
   metric overrides it with a sparsity-exploiting version.
+- The `Metric` interface has been extended in Phase 3B with two `default`
+  methods that throw or fall back to a position-independent approximation;
+  concrete metrics override as needed:
+  - `iscoRadius(boolean prograde)` — defaults to throwing
+    `UnsupportedOperationException`; overridden by `KerrMetric` and
+    `JohannsenPsaltisMetric` (added 3B.1).
+  - `isInsideHorizon(double[] x, double tol)` — defaults to
+    `r - horizonRadius() < tol`; overridden by `JohannsenPsaltisMetric`
+    with the position-dependent test `Δ + a² h sin²θ ≤ tol` (added 3B.2).
 - Fail loudly on invalid input (`IllegalArgumentException`). Do not let NaN
   propagate silently.
 
@@ -174,7 +183,7 @@ and laptop reboot.
 - [x] Validation: shadow radius converges to 3√3 M (256² edge midpoint within 0.5 px of prediction)
 - [x] `KerrMetric` (Phase 2)
 - [x] Adaptive `DormandPrince45` integrator (Phase 2)
-- [ ] Disk emission model (Phase 3)
+- [x] Disk emission model (Phase 3)
 - [x] `JohannsenPsaltisMetric` (Phase 3)
 - [ ] EHT comparison pipeline (Phase 3)
 - [ ] RNAAS paper
