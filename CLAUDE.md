@@ -175,7 +175,7 @@ and laptop reboot.
 - [x] `KerrMetric` (Phase 2)
 - [x] Adaptive `DormandPrince45` integrator (Phase 2)
 - [ ] Disk emission model (Phase 2)
-- [ ] `JohannsenPsaltisMetric` (Phase 3)
+- [x] `JohannsenPsaltisMetric` (Phase 3)
 - [ ] EHT comparison pipeline (Phase 3)
 - [ ] RNAAS paper
 
