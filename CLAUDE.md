@@ -185,7 +185,7 @@ and laptop reboot.
 - [x] Adaptive `DormandPrince45` integrator (Phase 2)
 - [x] Disk emission model (Phase 3)
 - [x] `JohannsenPsaltisMetric` (Phase 3)
-- [ ] EHT comparison pipeline (Phase 3)
+- [x] EHT comparison pipeline (Phase 3)
 - [ ] RNAAS paper
 
 ---
